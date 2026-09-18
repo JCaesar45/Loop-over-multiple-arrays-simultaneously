@@ -34,7 +34,7 @@ npx tsc web/src/aurum.ts --noEmit --strict --target es2022 --module es2022
 EOF
 
 echo "Generated $OUTPUT"
-```
+
 
 ## References
 
