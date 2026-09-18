@@ -1,9 +1,3 @@
-#!/usr/bin/env bash
-set -euo pipefail
-
-OUTPUT="README.md"
-
-cat > "$OUTPUT" <<'EOF'
 # Aurum Atelier
 
 A luxury conversion engine built as a single-file front end with API-ready backend services.
