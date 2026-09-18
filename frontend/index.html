@@ -1,0 +1,993 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Aurum Atelier — Luxury Conversion Engine</title>
+    <meta
+      name="description"
+      content="A luxury conversion engine that ranks products by proof, margin, and price friction."
+    />
+    <meta name="theme-color" content="#07070a" />
+    <meta property="og:title" content="Aurum Atelier" />
+    <meta
+      property="og:description"
+      content="Luxury conversion engine with ranked product structure, lead capture, and API-ready backend."
+    />
+    <meta property="og:type" content="website" />
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #07070a;
+        --panel: #101016;
+        --text: #f7f2e7;
+        --muted: #c9c2b4;
+        --gold: #d4af6a;
+        --gold-2: #f3ddad;
+        --line: rgba(212, 175, 106, 0.28);
+        --shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+        --radius: 24px;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family:
+          "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+        background:
+          radial-gradient(
+            circle at 15% 15%,
+            rgba(212, 175, 106, 0.16),
+            transparent 32%
+          ),
+          radial-gradient(
+            circle at 85% 20%,
+            rgba(255, 255, 255, 0.08),
+            transparent 24%
+          ),
+          var(--bg);
+        color: var(--text);
+        line-height: 1.5;
+      }
+
+      .container {
+        width: min(1160px, calc(100% - 32px));
+        margin-inline: auto;
+      }
+
+      .site-header {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        backdrop-filter: blur(18px);
+        background: rgba(7, 7, 10, 0.72);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .header-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 16px 0;
+      }
+
+      .brand {
+        margin: 0;
+        font-size: 1rem;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        color: var(--gold-2);
+      }
+
+      .nav {
+        display: flex;
+        gap: 18px;
+        flex-wrap: wrap;
+      }
+
+      .nav a {
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 0.95rem;
+      }
+
+      .nav a:hover {
+        color: var(--text);
+      }
+
+      .cart {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        padding: 10px 14px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .hero {
+        min-height: 92vh;
+        display: flex;
+        align-items: center;
+        padding: 64px 0;
+      }
+
+      .hero-grid {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 36px;
+        align-items: center;
+      }
+
+      .eyebrow {
+        margin: 0 0 12px;
+        color: var(--gold);
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+      }
+
+      h1 {
+        margin: 0 0 18px;
+        font-size: clamp(2.6rem, 6vw, 5.2rem);
+        line-height: 0.98;
+        letter-spacing: -0.04em;
+        max-width: 11ch;
+      }
+
+      .lede {
+        margin: 0 0 24px;
+        max-width: 58ch;
+        color: var(--muted);
+        font-size: 1.05rem;
+      }
+
+      .cta-row {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+        margin-bottom: 28px;
+      }
+
+      .button {
+        appearance: none;
+        border: 0;
+        border-radius: 999px;
+        padding: 13px 20px;
+        font: inherit;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition:
+          transform 0.18s ease,
+          box-shadow 0.18s ease,
+          background 0.18s ease;
+      }
+
+      .button:hover {
+        transform: translateY(-2px);
+      }
+
+      .button-gold {
+        background: linear-gradient(
+          135deg,
+          var(--gold),
+          #8f6b2a 58%,
+          var(--gold-2)
+        );
+        color: #181104;
+        box-shadow: 0 12px 30px rgba(212, 175, 106, 0.22);
+      }
+
+      .button-ghost {
+        color: var(--text);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: transparent;
+      }
+
+      .button-full {
+        width: 100%;
+      }
+
+      .metrics {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin: 0;
+      }
+
+      .metrics div {
+        padding: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 16px;
+      }
+
+      .metrics dt {
+        color: var(--gold-2);
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        margin-bottom: 6px;
+      }
+
+      .metrics dd {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      .hero-panel {
+        padding: 22px;
+        border: 1px solid var(--line);
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.08),
+          rgba(255, 255, 255, 0.03)
+        );
+        box-shadow: var(--shadow);
+        border-radius: var(--radius);
+      }
+
+      .form {
+        display: grid;
+        gap: 12px;
+      }
+
+      .form h2 {
+        margin: 0 0 6px;
+        font-size: 1.4rem;
+      }
+
+      .form label {
+        font-size: 0.92rem;
+        color: var(--gold-2);
+      }
+
+      .form input,
+      .form textarea {
+        width: 100%;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        background: rgba(4, 4, 6, 0.55);
+        color: var(--text);
+        border-radius: 14px;
+        padding: 13px 14px;
+        font: inherit;
+        min-height: 48px;
+      }
+
+      .form input:focus-visible,
+      .form textarea:focus-visible,
+      .button:focus-visible,
+      .nav a:focus-visible {
+        outline: 2px solid var(--gold-2);
+        outline-offset: 2px;
+      }
+
+      .status {
+        min-height: 1.4em;
+        margin: 0;
+        color: var(--gold-2);
+      }
+
+      .section {
+        padding: 84px 0;
+      }
+
+      .section-alt {
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.045),
+          transparent
+        );
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .section-head {
+        max-width: 720px;
+        margin-bottom: 32px;
+      }
+
+      h2 {
+        margin: 0 0 12px;
+        font-size: clamp(2rem, 4vw, 3.6rem);
+        line-height: 1.02;
+        letter-spacing: -0.03em;
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 18px;
+      }
+
+      .card {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        min-height: 430px;
+        padding: 22px;
+        border-radius: calc(var(--radius) - 4px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.06),
+          rgba(255, 255, 255, 0.02)
+        );
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+
+      .card::before {
+        content: "";
+        position: absolute;
+        inset: 0 0 auto 0;
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          var(--gold),
+          transparent
+        );
+        opacity: 0.8;
+      }
+
+      .card-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .badge {
+        color: #171104;
+        background: linear-gradient(135deg, var(--gold-2), var(--gold));
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .score {
+        color: var(--gold-2);
+        font-size: 0.92rem;
+        border: 1px solid var(--line);
+        padding: 6px 9px;
+        border-radius: 999px;
+      }
+
+      .card h3 {
+        margin: 0;
+        font-size: 1.45rem;
+        line-height: 1.05;
+      }
+
+      .price {
+        margin: 0;
+        color: var(--text);
+        font-size: 1.15rem;
+        font-weight: 700;
+      }
+
+      .features {
+        margin: 0;
+        padding-left: 18px;
+        display: grid;
+        gap: 8px;
+        color: var(--muted);
+      }
+
+      .card-actions {
+        margin-top: auto;
+        display: flex;
+        gap: 10px;
+      }
+
+      .list {
+        margin: 18px 0 0;
+        padding-left: 18px;
+        display: grid;
+        gap: 10px;
+        color: var(--muted);
+      }
+
+      .engine-grid {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 26px;
+        align-items: start;
+      }
+
+      .panel {
+        padding: 24px;
+        border-radius: var(--radius);
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.04);
+        box-shadow: var(--shadow);
+      }
+
+      .narrow {
+        max-width: 760px;
+      }
+
+      .site-footer {
+        padding: 30px 0 42px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .footer-inner {
+        display: flex;
+        justify-content: space-between;
+        gap: 18px;
+        flex-wrap: wrap;
+      }
+
+      .reveal {
+        opacity: 0;
+        transform: translateY(22px);
+        transition:
+          opacity 0.55s ease,
+          transform 0.55s ease;
+      }
+
+      .visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .skip-link {
+        position: absolute;
+        left: -9999px;
+        top: auto;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+      }
+
+      .skip-link:focus {
+        position: fixed;
+        left: 16px;
+        top: 16px;
+        width: auto;
+        height: auto;
+        padding: 12px 16px;
+        background: var(--gold);
+        color: #181104;
+        z-index: 99;
+        border-radius: 10px;
+      }
+
+      @media (max-width: 900px) {
+        .hero-grid,
+        .engine-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .metrics {
+          grid-template-columns: 1fr;
+        }
+
+        .hero {
+          min-height: auto;
+          padding-top: 42px;
+        }
+
+        .cart {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header">
+      <div class="container header-inner">
+        <p class="brand">Aurum Atelier</p>
+        <nav class="nav" aria-label="Primary">
+          <a href="#collection">Collection</a>
+          <a href="#engine">Engine</a>
+          <a href="#contact">Contact</a>
+        </nav>
+        <div class="cart" aria-label="Selected brief">
+          <span class="muted">Brief</span>
+          <strong id="cart-count">0</strong>
+          <strong id="cart-total">$0.00</strong>
+        </div>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="container hero-grid">
+          <div class="hero-copy">
+            <p class="eyebrow">Private revenue architecture</p>
+            <h1 id="hero-title">
+              Sell with the polish of a maison, not a marketplace.
+            </h1>
+            <p class="lede">
+              Aurum Atelier pairs a refined front of house with a deterministic
+              product-ranking engine. The result is a page that looks expensive,
+              reads clearly, and moves buyers toward the next conversation.
+            </p>
+            <div class="cta-row">
+              <button
+                class="button button-gold"
+                data-action="scroll-collection"
+                type="button"
+              >
+                View ranked collection
+              </button>
+              <a class="button button-ghost" href="#contact">
+                Request private demo
+              </a>
+            </div>
+            <dl class="metrics">
+              <div>
+                <dt>Proof-weighted ranking</dt>
+                <dd>Rating, sales, margin</dd>
+              </div>
+              <div>
+                <dt>Lead routing</dt>
+                <dd>API or local fallback</dd>
+              </div>
+              <div>
+                <dt>Interface</dt>
+                <dd>Semantic, responsive</dd>
+              </div>
+            </dl>
+          </div>
+
+          <div class="hero-panel">
+            <form id="lead-form" class="form reveal" novalidate>
+              <h2>Secure a strategy slot</h2>
+              <label for="lead-email">Business email</label>
+              <input
+                id="lead-email"
+                name="email"
+                type="email"
+                autocomplete="email"
+                inputmode="email"
+                required
+                placeholder="you@company.com"
+              />
+              <label for="lead-message">Objective</label>
+              <textarea
+                id="lead-message"
+                name="message"
+                rows="4"
+                placeholder="Increase qualified demos, average order value, or retention."
+              ></textarea>
+              <button
+                id="lead-submit"
+                class="button button-gold button-full"
+                type="submit"
+              >
+                Request private demo
+              </button>
+              <p
+                id="lead-status"
+                class="status"
+                role="status"
+                aria-live="polite"
+              ></p>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="collection"
+        class="section"
+        aria-labelledby="collection-title"
+      >
+        <div class="container">
+          <div class="section-head reveal">
+            <p class="eyebrow">Collection</p>
+            <h2 id="collection-title">Ranked by commercial gravity</h2>
+            <p class="muted">
+              Products are ordered by a transparent score: rating, sales proof,
+              margin, and price friction.
+            </p>
+          </div>
+          <div id="product-grid" class="grid" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <section
+        id="engine"
+        class="section section-alt"
+        aria-labelledby="engine-title"
+      >
+        <div class="container engine-grid">
+          <div class="reveal">
+            <p class="eyebrow">Engine</p>
+            <h2 id="engine-title">A conversion algorithm, not a guess</h2>
+            <p class="muted">
+              score = (rating × ln(1 + sales) × margin) ÷ √(price/100 + 1)
+            </p>
+            <ul class="list">
+              <li>Proof is weighted before aesthetic preference.</li>
+              <li>Margin protects commercial quality.</li>
+              <li>
+                Price friction is normalized to avoid expensive items dominating
+                by revenue alone.
+              </li>
+            </ul>
+          </div>
+          <div class="panel reveal">
+            <h3>Operating surfaces</h3>
+            <ul class="list">
+              <li>Single-file HTML, CSS, and JavaScript front of house.</li>
+              <li>FastAPI backend for products and leads.</li>
+              <li>TypeScript contract layer for typed integration.</li>
+              <li>Java catalog service for enterprise deployment.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="contact" class="section" aria-labelledby="contact-title">
+        <div class="container narrow reveal">
+          <p class="eyebrow">Contact</p>
+          <h2 id="contact-title">Bring the engine into your stack</h2>
+          <p class="muted">
+            Use the form above, or launch the API and connect your own CRM,
+            analytics, and billing systems.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <p>Aurum Atelier</p>
+        <p class="muted">
+          Built as a single-page front end with API-ready backend services.
+        </p>
+      </div>
+    </footer>
+
+    <script type="module">
+      const PRODUCT_STRUCTURE = Object.freeze({
+        version: "1.0.0",
+        generatedAt: "2026-09-18",
+        algorithm: "weighted-proof-ranking",
+        products: [
+          {
+            id: "velvet-funnel",
+            name: "Velvet Funnel Suite",
+            category: "Conversion",
+            price: 260000,
+            margin: 0.51,
+            badge: "Growth",
+            proof: { rating: 4.8, sales: 2390, retention: 0.91 },
+            features: [
+              "A/B revenue pages",
+              "Lead scoring",
+              "Concierge CTA flows"
+            ]
+          },
+          {
+            id: "obsidian-intake",
+            name: "Obsidian Client Intake",
+            category: "Client Intake",
+            price: 190000,
+            margin: 0.39,
+            badge: "Intake",
+            proof: { rating: 4.7, sales: 3155, retention: 0.96 },
+            features: [
+              "Verified lead capture",
+              "Pipeline automation",
+              "High-value follow-up"
+            ]
+          },
+          {
+            id: "meridian-retention",
+            name: "Meridian Retention Suite",
+            category: "Retention",
+            price: 320000,
+            margin: 0.45,
+            badge: "Retention",
+            proof: { rating: 4.8, sales: 968, retention: 0.97 },
+            features: [
+              "Churn radar",
+              "Loyalty triggers",
+              "Client success briefs"
+            ]
+          },
+          {
+            id: "aurum-signature",
+            name: "Aurum Signature Console",
+            category: "Revenue Command",
+            price: 480000,
+            margin: 0.42,
+            badge: "Flagship",
+            proof: { rating: 4.9, sales: 1482, retention: 0.94 },
+            features: [
+              "Real-time revenue telemetry",
+              "Predictive offer ranking",
+              "Private client vault"
+            ]
+          }
+        ]
+      });
+
+      const EMAIL_PATTERN = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+      const HTML_ESCAPE = {
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      };
+
+      const state = {
+        products: [],
+        cart: new Map(),
+        leads: []
+      };
+
+      const els = {
+        productGrid: document.getElementById("product-grid"),
+        leadForm: document.getElementById("lead-form"),
+        leadEmail: document.getElementById("lead-email"),
+        leadMessage: document.getElementById("lead-message"),
+        leadSubmit: document.getElementById("lead-submit"),
+        leadStatus: document.getElementById("lead-status"),
+        cartCount: document.getElementById("cart-count"),
+        cartTotal: document.getElementById("cart-total")
+      };
+
+      const currency = new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD"
+      });
+
+      let revealObserver = null;
+
+      if ("IntersectionObserver" in window) {
+        revealObserver = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("visible");
+                revealObserver.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.18 }
+        );
+      }
+
+      function escapeHtml(value) {
+        return String(value).replace(/[&<>"']/g, (ch) => HTML_ESCAPE[ch]);
+      }
+
+      function scoreProduct(product) {
+        const rating = product.proof?.rating ?? 0;
+        const sales = product.proof?.sales ?? 0;
+        const margin = product.margin ?? 0;
+        const dollars = product.price / 100;
+        return (rating * Math.log1p(sales) * margin) / Math.sqrt(dollars + 1);
+      }
+
+      function sortedProducts(products) {
+        return [...products].sort((a, b) => scoreProduct(b) - scoreProduct(a));
+      }
+
+      function createCard(product) {
+        const article = document.createElement("article");
+        article.className = "card reveal";
+
+        const score = scoreProduct(product).toFixed(2);
+        const price = currency.format(product.price / 100);
+        const features = (product.features ?? [])
+          .map((feature) => `<li>${escapeHtml(feature)}</li>`)
+          .join("");
+
+        article.innerHTML = `
+    <div class="card-head">
+      <span class="badge">${escapeHtml(product.badge)}</span>
+      <span class="score" aria-label="Conversion score">${score}</span>
+    </div>
+    <h3>${escapeHtml(product.name)}</h3>
+    <p class="muted">${escapeHtml(product.category)}</p>
+    <p class="price">${price}</p>
+    <ul class="features">${features}</ul>
+    <div class="card-actions">
+      <button class="button button-gold" type="button" data-action="add" data-id="${escapeHtml(product.id)}">
+        Add to brief
+      </button>
+    </div>
+  `;
+
+        return article;
+      }
+
+      function observeReveals(root = document) {
+        root.querySelectorAll(".reveal:not(.visible)").forEach((node) => {
+          if (revealObserver) {
+            revealObserver.observe(node);
+          } else {
+            node.classList.add("visible");
+          }
+        });
+      }
+
+      function renderProducts() {
+        els.productGrid.replaceChildren(
+          ...sortedProducts(state.products).map(createCard)
+        );
+        observeReveals(els.productGrid);
+      }
+
+      function updateCart() {
+        let count = 0;
+        let total = 0;
+
+        for (const [id, quantity] of state.cart) {
+          const product = state.products.find((item) => item.id === id);
+          if (!product) {
+            continue;
+          }
+
+          count += quantity;
+          total += product.price * quantity;
+        }
+
+        els.cartCount.textContent = String(count);
+        els.cartTotal.textContent = currency.format(total / 100);
+      }
+
+      function persistCart() {
+        try {
+          localStorage.setItem(
+            "aurum-cart",
+            JSON.stringify(Array.from(state.cart.entries()))
+          );
+        } catch {
+          return;
+        }
+      }
+
+      function restoreCart() {
+        try {
+          const raw = localStorage.getItem("aurum-cart");
+          if (raw) {
+            state.cart = new Map(JSON.parse(raw));
+          }
+        } catch {
+          state.cart = new Map();
+        }
+      }
+
+      function addToCart(id) {
+        state.cart.set(id, (state.cart.get(id) ?? 0) + 1);
+        updateCart();
+        persistCart();
+      }
+
+      async function fetchProducts() {
+        try {
+          const response = await fetch("/api/products", {
+            headers: { accept: "application/json" },
+            cache: "no-store"
+          });
+
+          if (!response.ok) {
+            return PRODUCT_STRUCTURE.products;
+          }
+
+          const body = await response.json();
+          return Array.isArray(body?.products) && body.products.length
+            ? body.products
+            : PRODUCT_STRUCTURE.products;
+        } catch {
+          return PRODUCT_STRUCTURE.products;
+        }
+      }
+
+      async function submitLead(event) {
+        event.preventDefault();
+
+        const email = els.leadEmail.value.trim();
+        const message = els.leadMessage.value.trim();
+
+        if (!EMAIL_PATTERN.test(email)) {
+          els.leadStatus.textContent = "Enter a valid business email.";
+          return;
+        }
+
+        els.leadSubmit.disabled = true;
+
+        try {
+          const response = await fetch("/api/leads", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, source: "landing", message })
+          });
+
+          if (response.status === 409) {
+            els.leadStatus.textContent = "This email is already registered.";
+            return;
+          }
+
+          if (!response.ok) {
+            throw new Error("Lead request failed");
+          }
+
+          await response.json();
+          els.leadStatus.textContent =
+            "Request accepted. Concierge will contact you.";
+          els.leadForm.reset();
+        } catch {
+          state.leads.push({
+            email,
+            source: "landing",
+            message,
+            storedAt: new Date().toISOString()
+          });
+
+          try {
+            localStorage.setItem("aurum-leads", JSON.stringify(state.leads));
+          } catch {
+            return;
+          }
+
+          els.leadStatus.textContent =
+            "Saved locally. Launch the API to route leads.";
+          els.leadForm.reset();
+        } finally {
+          els.leadSubmit.disabled = false;
+        }
+      }
+
+      els.leadForm.addEventListener("submit", submitLead);
+
+      els.productGrid.addEventListener("click", (event) => {
+        const button =
+          event.target instanceof Element
+            ? event.target.closest("[data-action='add']")
+            : null;
+
+        if (button instanceof HTMLElement && button.dataset.id) {
+          addToCart(button.dataset.id);
+        }
+      });
+
+      document
+        .querySelector("[data-action='scroll-collection']")
+        ?.addEventListener("click", () => {
+          document.getElementById("collection")?.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+          });
+        });
+
+      async function init() {
+        restoreCart();
+        state.products = await fetchProducts();
+        renderProducts();
+        updateCart();
+        observeReveals();
+      }
+
+      init();
+    </script>
+  </body>
+</html>
