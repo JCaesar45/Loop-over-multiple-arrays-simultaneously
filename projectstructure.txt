@@ -1,0 +1,11 @@
+Loop-over-multiple-arrays-simultaneously/
+├── index.html
+├── README.sh
+├── backend/
+│   ├── main.py
+│   └── requirements.txt
+├── java/
+│   └── CatalogMain.java
+└── web/
+    └── src/
+        └── aurum.ts
